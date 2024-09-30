@@ -311,18 +311,39 @@ function updateLayerVisibility(folder, layerName) {
     const checkbox = document.getElementById(layerName);
     const isChecked = checkbox.checked;
 
-    if (isChecked) {
-        geojsonLayers[folder][layerName].addTo(map); // Add layer to map
-        if (labelLayers[folder][layerName]) {
-            labelLayers[folder][layerName].addTo(map); // Add labels if present
+    // Check if the layer is defined
+    if (geojsonLayers[folder][layerName]) {
+        if (isChecked) {
+            if (!map.hasLayer(geojsonLayers[folder][layerName])) {
+                geojsonLayers[folder][layerName].addTo(map); // Add layer to map
+            }
+            // Add labels if present
+            if (labelLayers[folder][layerName]) {
+                labelLayers[folder][layerName].forEach(({ marker }) => {
+                    if (!map.hasLayer(marker)) {
+                        map.addLayer(marker);
+                    }
+                });
+            }
+        } else {
+            // Remove layer if checked is false
+            if (map.hasLayer(geojsonLayers[folder][layerName])) {
+                map.removeLayer(geojsonLayers[folder][layerName]); // Remove layer from map
+            }
+            // Remove labels if present
+            if (labelLayers[folder][layerName]) {
+                labelLayers[folder][layerName].forEach(({ marker }) => {
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker);
+                    }
+                });
+            }
         }
     } else {
-        map.removeLayer(geojsonLayers[folder][layerName]); // Remove layer from map
-        if (labelLayers[folder][layerName]) {
-            map.removeLayer(labelLayers[folder][layerName]); // Remove labels if present
-        }
+        console.warn(`Layer ${layerName} does not exist.`);
     }
 }
+
 
 // Function to update label visibility based on zoom level and layer visibility
 function updateLabelVisibility() {
