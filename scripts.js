@@ -159,6 +159,7 @@ function addLabelsToLayer(geoJsonLayer, labelProperty, layerName) {
 }
 
 // Function to dynamically load and create checkboxes in dropdowns
+// Function to dynamically load and create checkboxes in dropdowns
 function loadGeoJSONFiles(folder) {
     const container = document.getElementById(`${folder}-layers`);
     container.innerHTML = ''; // Clear existing checkboxes
@@ -166,12 +167,15 @@ function loadGeoJSONFiles(folder) {
 
     const promises = folders[folder].map(file => {
         const layerName = file.split('.')[0];
+        
+        // Create checkbox for the layer
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = layerName;
-        checkbox.checked = (layerName === 'Village_Boundary');
+        checkbox.checked = (layerName === 'Village_Boundary'); // Default checked state
         checkbox.addEventListener('change', () => updateLayerVisibility(folder, layerName));
 
+        // Create label for the checkbox
         const label = document.createElement('label');
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(layerName));
@@ -184,92 +188,41 @@ function loadGeoJSONFiles(folder) {
                 // Apply the style based on the layer name
                 const layerStyle = getLayerStyle(layerName);
 
-                // Define onEachFeature to bind popups to each feature
-                // Define onEachFeature to bind popups to each feature
+                // Define a function to bind popups to each feature
                 function onEachFeature(feature, layer) {
                     let popupContent = "";
-                
-                    // Hissa Map GeoJSON: Display Survey No, District, Mandal, Village Name, Owner, and Area
+
+                    // Conditional popup content based on layer type
                     if (feature.properties.Layer === "Hissa Boundary") {
                         popupContent += "<b>Hissa Map Details:</b><br>";
-                        if (feature.properties.Hissa_No) {
-                            popupContent += `<b>Hissa No:</b> ${feature.properties.Hissa_No}<br>`;
-                        }
-                        if (feature.properties.District) {
-                            popupContent += `<b>District:</b> ${feature.properties.District}<br>`;
-                        }
-                        if (feature.properties.Mandal) {
-                            popupContent += `<b>Mandal:</b> ${feature.properties.Mandal}<br>`;
-                        }
-                        if (feature.properties.Village_Na) {
-                            popupContent += `<b>Village:</b> ${feature.properties.Village_Na}<br>`;
-                        }
-                        if (feature.properties.Owner) {
-                            popupContent += `<b>Owner:</b> ${feature.properties.Owner}<br>`;
-                        }
-                        if (feature.properties.O_Area) {
-                            popupContent += `<b>Area (Acres):</b> ${feature.properties.O_Area}<br>`;
-                        }
-                
-                    // Survey GeoJSON: Display Village Name, Survey Number, and Area in Sqm
+                        if (feature.properties.Hissa_No) popupContent += `<b>Hissa No:</b> ${feature.properties.Hissa_No}<br>`;
+                        if (feature.properties.District) popupContent += `<b>District:</b> ${feature.properties.District}<br>`;
+                        if (feature.properties.Mandal) popupContent += `<b>Mandal:</b> ${feature.properties.Mandal}<br>`;
+                        if (feature.properties.Village_Na) popupContent += `<b>Village:</b> ${feature.properties.Village_Na}<br>`;
+                        if (feature.properties.Owner) popupContent += `<b>Owner:</b> ${feature.properties.Owner}<br>`;
+                        if (feature.properties.O_Area) popupContent += `<b>Area (Acres):</b> ${feature.properties.O_Area}<br>`;
                     } else if (feature.properties.hasOwnProperty("Survey_No")) {
                         popupContent += "<b>Survey Details:</b><br>";
-                        if (feature.properties.Village_Na) {
-                            popupContent += `<b>Village:</b> ${feature.properties.Village_Na}<br>`;
-                        }
-                        if (feature.properties.Survey_No) {
-                            popupContent += `<b>Survey Number:</b> ${feature.properties.Survey_No}<br>`;
-                        }
-                        if (feature.properties.Area_Sqm) {
-                            popupContent += `<b>Area (sqm):</b> ${feature.properties.Area_Sqm}<br>`;
-                        }
-                
-                    // Village Boundary GeoJSON: Display Village Name only
+                        if (feature.properties.Village_Na) popupContent += `<b>Village:</b> ${feature.properties.Village_Na}<br>`;
+                        if (feature.properties.Survey_No) popupContent += `<b>Survey Number:</b> ${feature.properties.Survey_No}<br>`;
+                        if (feature.properties.Area_Sqm) popupContent += `<b>Area (sqm):</b> ${feature.properties.Area_Sqm}<br>`;
                     } else if (feature.properties.hasOwnProperty("Area_Sqkm")) {
                         popupContent += "<b>Village Boundary Details:</b><br>";
-                        if (feature.properties.Village_Na) {
-                            popupContent += `<b>Village:</b> ${feature.properties.Village_Na}<br>`;
-                        }
-                
-                    // For other layers: Display only the layer name
+                        if (feature.properties.Village_Na) popupContent += `<b>Village:</b> ${feature.properties.Village_Na}<br>`;
                     } else {
                         popupContent += `<b>Layer:</b> ${feature.properties.LAYER || feature.properties.Layer}`;
                     }
-                
+
                     // Bind the popup content to the layer
                     layer.bindPopup(popupContent);
                 }
-                
 
                 // Create the GeoJSON layer
                 geojsonLayers[folder][layerName] = L.geoJSON(data, {
                     style: layerStyle,
                     onEachFeature: onEachFeature, // Bind popups to each feature
                     pointToLayer: function (feature, latlng) {
-                        let iconUrl;
-                        switch (layerName) {
-                            case 'Electric_Mast':
-                                iconUrl = 'https://cdn4.iconfinder.com/data/icons/energy-and-power-1-5/512/29-1024.png'; // Replace with actual open-source icon URL
-                                break;
-                            case 'Electric_Pole':
-                                iconUrl = 'https://cdn-icons-png.flaticon.com/512/7248/7248318.png'; // Replace with actual open-source icon URL
-                                break;
-                            case 'High_Tension_Line':
-                                iconUrl = 'https://example.com/icons/high-tension-line.png'; // Replace with actual open-source icon URL
-                                break;
-                            case 'High_Tenstion_Tower':
-                                iconUrl = 'https://cdn1.iconfinder.com/data/icons/energy-and-construction/128/energy_construction_power_line_generation_electrical_grid_electricity_tower-512.png'; // Replace with actual open-source icon URL
-                                break;
-                            case 'Hand_Pump':
-                                iconUrl = 'https://cdn3.iconfinder.com/data/icons/oil-industry-40/504/Hand-pump-water-supply-well-512.png'; // Replace with actual open-source icon URL
-                                break;
-                            case 'Overhead_Tank':
-                                iconUrl = 'https://cdn-icons-png.flaticon.com/512/1574/1574996.png'; // Replace with actual open-source icon URL
-                                break;
-                            default:
-                                iconUrl = 'https://example.com/icons/default.png'; // Replace with a default icon if needed
-                            
-                        }
+                        let iconUrl = getIconUrl(layerName); // Get icon URL based on layer name
                         const icon = L.icon({
                             iconUrl: iconUrl,
                             iconSize: [24, 24], // Adjust size as needed
@@ -302,7 +255,26 @@ function loadGeoJSONFiles(folder) {
             map.fitBounds(groupBounds); // Only fit bounds for other folders
         }
     });
-    
+}
+
+// Function to get icon URL based on layer name
+function getIconUrl(layerName) {
+    switch (layerName) {
+        case 'Electric_Mast':
+            return 'https://cdn4.iconfinder.com/data/icons/energy-and-power-1-5/512/29-1024.png'; // Replace with actual open-source icon URL
+        case 'Electric_Pole':
+            return 'https://cdn-icons-png.flaticon.com/512/7248/7248318.png'; // Replace with actual open-source icon URL
+        case 'High_Tension_Line':
+            return 'https://example.com/icons/high-tension-line.png'; // Replace with actual open-source icon URL
+        case 'High_Tenstion_Tower':
+            return 'https://cdn1.iconfinder.com/data/icons/energy-and-construction/128/energy_construction_power_line_generation_electrical_grid_electricity_tower-512.png'; // Replace with actual open-source icon URL
+        case 'Hand_Pump':
+            return 'https://cdn3.iconfinder.com/data/icons/oil-industry-40/504/Hand-pump-water-supply-well-512.png'; // Replace with actual open-source icon URL
+        case 'Overhead_Tank':
+            return 'https://cdn-icons-png.flaticon.com/512/1574/1574996.png'; // Replace with actual open-source icon URL
+        default:
+            return 'https://example.com/icons/default.png'; // Replace with a default icon if needed
+    }
 }
 
 
