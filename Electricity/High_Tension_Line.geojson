@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "High_Tension_Line",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "LAYER": "High Tension Line", "Length_M": 1885.966 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 83.189110537699079, 17.952887741294493, 0.0 ], [ 83.18914360088192, 17.953195369693869, 0.0 ], [ 83.189572811209302, 17.957119313529244, 0.0 ], [ 83.190006327175311, 17.960894019863275, 0.0 ], [ 83.190418736695563, 17.964577354358997, 0.0 ], [ 83.193639132626501, 17.968862994595778, 0.0 ] ] ] } }
+]
+}

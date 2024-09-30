@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"name": "High_Tenstion_Tower",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "LAYER": "High Tenstion Tower", "X": "731855.546", "Y": "1986373.045" }, "geometry": { "type": "Point", "coordinates": [ 83.189143600881906, 17.953195369693873, 0.0 ] } },
+{ "type": "Feature", "properties": { "LAYER": "High Tenstion Tower", "X": "731895.903", "Y": "1986807.968" }, "geometry": { "type": "Point", "coordinates": [ 83.189572811209302, 17.957119313529233, 0.0 ] } },
+{ "type": "Feature", "properties": { "LAYER": "High Tenstion Tower", "X": "731975.791", "Y": "1987634.642" }, "geometry": { "type": "Point", "coordinates": [ 83.190418736695548, 17.964577354359008, 0.0 ] } },
+{ "type": "Feature", "properties": { "LAYER": "High Tenstion Tower", "X": "731936.907", "Y": "1987226.375" }, "geometry": { "type": "Point", "coordinates": [ 83.190006327175297, 17.960894019863236, 0.0 ] } }
+]
+}
