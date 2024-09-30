@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web GIS Map - Kottavala Village GIS</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+        #map {
+            height: 600px;
+            width: 80%;
+        }
+
+        #container {
+            display: flex;
+        }
+        
+        #sidebar {
+            width: 20%;
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+
+        /* New Section for Owner Filter and Summary Table */
+        #owner-section {
+            margin-top: 20px;
+            background-color: #e0f7fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            margin-bottom: 15px;
+        }
+        
+        .dropbtn {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .dropdown-content {
+            display: none;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            width: 100%;
+            background-color: #139fc5;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Floating search box and table for owner filter */
+        #search-container {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border: 1px solid black;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+        }
+
+        #search-toggle {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1001;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        /* Summary Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* Display the latitude and longitude at the bottom */
+        #latlngDisplay {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 5px;
+            border: 1px solid black;
+        }
+
+        #suggestionList {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            position: absolute; /* Makes it appear below the search box */
+            width: 100%;
+            background-color: white;
+            z-index: 1000;
+        }
+
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        Chinnipalem Village GIS
+    </div>
+
+    <div id="container">
+        <div id="sidebar">
+            <!-- Layer Controls Section -->
+            <div>
+                <h3>Layers</h3>
+                <!-- Dropdown buttons for layers -->
+                <div class="dropdown">
+                    <button class="dropbtn">Cadastral Layers</button>
+                    <div id="cadastrial-layers" class="dropdown-content">
+                        <label>
+                            <input type="checkbox" id="show-survey-labels" checked>
+                            Show Survey Labels
+                        </label>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="dropbtn">Electricity Layers</button>
+                    <div id="electricity-layers" class="dropdown-content"></div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="dropbtn">Buildup Layers</button>
+                    <div id="buildup-layers" class="dropdown-content"></div>
+                </div>
+                
+
+                
+                
+
+                <div class="dropdown">
+                    <button class="dropbtn">Land Use Areas</button>
+                    <div id="lulc-layers" class="dropdown-content"></div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="dropbtn">Transportation Roads</button>
+                    <div id="transportation-layers" class="dropdown-content"></div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="dropbtn">Water</button>
+                    <div id="water-layers" class="dropdown-content">
+                        <!-- Add water-related layers here -->
+                    </div>
+                </div>
+
+                
+
+                
+
+                <div class="dropdown">
+                    <button class="dropbtn">Ortho Photo</button>
+                    <div id="ortho-layers" class="dropdown-content">
+                        <label>
+                            <input type="checkbox" id="toggle-ortho-layer">
+                            Show Ortho Photo
+                        </label>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div id="map"></div>
+
+        <div id="latlngDisplay">
+            Lat: 0, Lng: 0
+        </div>
+        
+        <!-- Floating search and table container -->
+        <button id="search-toggle">Select Your Properties!!</button>
+        <div id="search-container">
+            <h3>Your Properties!!</h3>
+            <div id="ownerDropdownContainer"></div>
+
+            <h3>Property Summary</h3>
+            <table id="ownerSummaryContainer">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic content will be added here -->
+                </tbody>
+            </table>
+            <h3>Property Comparison</h3>
+            <canvas id="ownerChart" width="200" height="200"></canvas>
+            <h3>Near by Owners</h3>
+            <table id="nearbyOwnersContainer">
+                <thead>
+                    <tr>
+                        <th>Owner</th>
+                        <th>Area (Acres)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically added here -->
+                </tbody>
+            </table>
+
+
+
+            
+            
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include Turf.js from CDN -->
+    <script src="https://unpkg.com/@turf/turf"></script>
+
+
+    <!-- External Script -->
+    <script src="scripts.js"></script>
+
+    <script>
+        // Toggle the search box visibility
+        document.getElementById('search-toggle').addEventListener('click', function() {
+            const searchContainer = document.getElementById('search-container');
+            if (searchContainer.style.display === 'none' || searchContainer.style.display === '') {
+                searchContainer.style.display = 'block';
+            } else {
+                searchContainer.style.display = 'none';
+            }
+        });
+
+        // Define the ortho WMS layer URL and options
+// Define the ortho WMS layer URL and options
+const orthoWmsUrl = 'http://localhost:8080/geoserver/chinnipallemfinal/wms'; // Updated URL
+let orthoLayer = null;
+
+// Function to add the ortho WMS layer
+function addOrthoLayer() {
+    if (!orthoLayer) {
+        orthoLayer = L.tileLayer.wms(orthoWmsUrl, {
+            layers: 'chinnipallemfinal:Chinnipalem_New_Buffer_50m_LL', // Updated layer name
+            format: 'image/png', // Keep the format as PNG
+            transparent: true,
+            version: '1.1.0', // Same version as before
+            attribution: "GeoServer Ortho Layer"
+        }).addTo(map);
+    }
+}
+
+// Function to remove the ortho WMS layer
+function removeOrthoLayer() {
+    if (orthoLayer) {
+        map.removeLayer(orthoLayer);
+        orthoLayer = null;
+    }
+}
+
+// Toggle ortho layer based on the checkbox status
+document.getElementById('toggle-ortho-layer').addEventListener('change', function() {
+    if (this.checked) {
+        addOrthoLayer();
+    } else {
+        removeOrthoLayer();
+    }
+});
+
+
+    </script>
+</body>
+</html>
+
+
